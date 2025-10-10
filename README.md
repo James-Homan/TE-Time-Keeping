@@ -15,16 +15,7 @@ This repository contains code for running the application. Our goals are to:
 git clone https://github.com/lmdavies13/Analyzing-MLB-Pitch-Data.git
 ```
 
-Open it in RStudio (or your preferred environment).
-
-### 2. Acquire the dataset
-
-We use the Kaggle MLB dataset (specifically the `pitches.csv` file).
-https://www.kaggle.com/datasets/pschale/mlb-pitch-data-20152018/data
-
-- Download `pitches.csv` from Kaggle.
-- Place it in the root directory of this project.
-- Note that `.gitignore` is configured to ignore `pitches.csv` so you won’t accidentally commit large data files.
+Open it in VS Code (or your preferred environment).
 
 ## Usage
 
