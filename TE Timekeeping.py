@@ -12,10 +12,13 @@ from tkinter import ttk  # For Scrollbar and styling
 # Logs entry and exit times to CSV
 #----------------------------------------------------------------------------------------------------------
 def log_entry_exit(area_name, entry_time, exit_time):
-    duration = exit_time - entry_time
-    with open(log_file, mode="a", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow([area_name, time.ctime(entry_time), time.ctime(exit_time), round(duration, 2)])
+    if (entry_time != exit_time):
+        duration = exit_time - entry_time
+        with open(log_file, mode="a", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow([area_name, time.ctime(entry_time), time.ctime(exit_time), round(duration, 2)])
+    else:
+        return
 #----------------------------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------------------------
@@ -44,10 +47,32 @@ def update_display():
 # Stops logging and closes the app
 #----------------------------------------------------------------------------------------------------------
 def exit_app():
-    exit_time = time.time()
-    log_entry_exit(current_area, entry_time, exit_time)
-    messagebox.showinfo("Exit", "Logging stopped. Data saved to 'area_log.csv'.")
-    root.destroy()
+    try:
+        entry_time
+        exit_time = time.time()
+        log_entry_exit(current_area, entry_time, exit_time)
+        messagebox.showinfo("Exit", "Logging stopped. Data saved to 'area_log.csv'.")
+        root.destroy()
+        return
+    except NameError:
+        messagebox.showinfo("Exit", "No logging session started.")
+        root.destroy()
+#----------------------------------------------------------------------------------------------------------
+
+#----------------------------------------------------------------------------------------------------------
+# Stops logging and closes the app
+#----------------------------------------------------------------------------------------------------------
+def start_log():
+    try:
+        global entry_time
+        entry_time = time.time()
+        update_display()
+        with open(log_file, mode="a", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(["Area", "Entry Time", "Exit Time", "Duration (seconds)"])
+    except Exception as e:
+        messagebox.showerror("Error", f"Failed to start log: {e}")
+        root.destroy()
 #----------------------------------------------------------------------------------------------------------
 
 # Define areas
@@ -68,15 +93,6 @@ log_file = "area_log.csv"
 idle_label = "Untracked (Idle)"
 start_label = "Start Time"
 current_area = idle_label
-entry_time = time.time()
-
-# Ensure CSV file has a header
-try:
-    with open(log_file, "x", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["Area", "Entry Time", "Exit Time", "Duration (seconds)"])
-except FileExistsError:
-    pass
 
 # GUI Setup
 root = tk.Tk()
@@ -120,17 +136,13 @@ for j in range(cols):
     scrollable_frame.grid_columnconfigure(j, weight=1)
 
 # Start time button
-tk.Button(root, text="Set start", font=("Arial", 12), command=lambda: switch_area(start_label)).pack(
-    pady=10)
+tk.Button(root, text="Set start", font=("Arial", 12), command=lambda: start_log()).pack(pady=10)
 
 # Idle button
 tk.Button(root, text="Set to Idle", font=("Arial", 12), command=lambda: switch_area(idle_label)).pack(
     pady=10)
 
 # Exit button
-tk.Button(root, text="Exit", font=("Arial", 12), bg="red", fg="white", command=exit_app).pack(
-    pady=10)
+tk.Button(root, text="Exit", font=("Arial", 12), bg="red", fg="white", command=exit_app).pack(pady=10)
 
-# Start real-time updates
-update_display()
 root.mainloop()
