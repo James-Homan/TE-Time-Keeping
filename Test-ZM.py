@@ -15,31 +15,11 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.dates import DateFormatter
 import datetime
 
-# Define areas with their department codes
-areas = {
-    1: ("Vigilance Focus Factory", "60011"),
-    2: ("Enterprise Focus Factory", "60015"),
-    3: ("Liberty Focus Factory", "60012"),
-    4: ("Intrepid Focus Factory", "60013"),
-    5: ("Freedom Focus Factory", "60017"),
-    6: ("Pioneer Focus Factory", "60014"),
-    7: ("ESS Chambers", "ESS"),
-    8: ("Breaks", "NPRD"),
-    9: ("Training", "TRAIN"),
-    10: ("E3 Projects", "NPRD")
-}
 
-log_file = "area_log.csv"
-idle_label = "Untracked (Idle)"
-logging_active = False
-current_area = idle_label
-entry_time = time.time()
-
-# Dictionary to keep track of time spent in each area today
-daily_time = defaultdict(float)
-
+#----------------------------------------------------------------------------------------------------------
+# Logs entry and exit times to CSV
+#----------------------------------------------------------------------------------------------------------
 def log_entry_exit(area_name, entry_time, exit_time):
-    """Logs entry and exit times to CSV"""
     if not logging_active:
         return
     
@@ -59,8 +39,10 @@ def log_entry_exit(area_name, entry_time, exit_time):
             department_code  # department code
         ])
 
+#----------------------------------------------------------------------------------------------------------
+# Switches to a new area and logs time
+#----------------------------------------------------------------------------------------------------------
 def switch_area(area_name):
-    """Switches to a new area and logs time"""
     global current_area, entry_time
 
     if area_name != current_area:
@@ -70,37 +52,47 @@ def switch_area(area_name):
         entry_time = time.time()
         update_display()
 
+#----------------------------------------------------------------------------------------------------------
+# Updates the GUI with the current area and elapsed time
+#----------------------------------------------------------------------------------------------------------
 def update_display():
-    """Updates the GUI with the current area and elapsed time"""
     elapsed = round(time.time() - entry_time, 2)
     label.config(text=f"Current Area: {current_area}\nTime Spent: {elapsed} sec")
     if logging_active:
         root.after(1000, update_display)  # Refresh every second
 
+#----------------------------------------------------------------------------------------------------------
+# Starts logging and closes the app
+#----------------------------------------------------------------------------------------------------------
 def start_logging():
-    """Starts the logging process"""
     global logging_active, entry_time
     if not logging_active:
         logging_active = True
         entry_time = time.time()
         update_display()
 
+#----------------------------------------------------------------------------------------------------------
+# Stops logging and closes the app
+#----------------------------------------------------------------------------------------------------------
 def stop_logging():
-    """Stops the logging process"""
     global logging_active
     if logging_active:
         exit_time = time.time()
         log_entry_exit(current_area, entry_time, exit_time)
         logging_active = False
 
+#----------------------------------------------------------------------------------------------------------
+# Stops logging and closes the app
+#----------------------------------------------------------------------------------------------------------
 def exit_app():
-    """Stops logging and closes the app"""
     stop_logging()
     messagebox.showinfo("Exit", "Logging stopped. Data saved to 'area_log.csv'.")
     root.destroy()
 
+#----------------------------------------------------------------------------------------------------------
+# Displays dashboard to user
+#----------------------------------------------------------------------------------------------------------
 def show_dashboard():
-    """Displays the dashboard with daily and weekly logs"""
     # Read log data
     activities = defaultdict(list)
     with open(log_file, mode='r') as file:
@@ -161,6 +153,29 @@ def show_dashboard():
     canvas.draw()
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
     fig.tight_layout(rect=[0, 0, 0.85, 1])
+
+# Define areas with their department codes
+areas = {
+    1: ("Vigilance Focus Factory", "60011"),
+    2: ("Enterprise Focus Factory", "60015"),
+    3: ("Liberty Focus Factory", "60012"),
+    4: ("Intrepid Focus Factory", "60013"),
+    5: ("Freedom Focus Factory", "60017"),
+    6: ("Pioneer Focus Factory", "60014"),
+    7: ("ESS Chambers", "ESS"),
+    8: ("Breaks", "NPRD"),
+    9: ("Training", "TRAIN"),
+    10: ("E3 Projects", "NPRD")
+}
+
+log_file = "area_log.csv"
+idle_label = "Untracked (Idle)"
+logging_active = False
+current_area = idle_label
+entry_time = time.time()
+
+# Dictionary to keep track of time spent in each area today
+daily_time = defaultdict(float)
 
 # Ensure CSV file has a header
 try:
