@@ -26,3 +26,6 @@ Open it in VS Code (or your preferred environment).
 
 ### 2. Run the project
 - This project will be designed to be a stand alone application. Simply just launch the application.
+
+### 3. Opening Generated .csv File to see timecard information
+- Before Closing Command Terminal, Close the GUI. after GUI is closed within Command line bash area_log.csv to open the timecard Database to populate time Card 2.0
