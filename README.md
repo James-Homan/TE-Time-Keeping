@@ -12,7 +12,7 @@ This repository contains code for running the application. Our goals are to:
 ### 1. Clone or download this repository
 
 ```bash
-git clone https://github.com/lmdavies13/Analyzing-MLB-Pitch-Data.git
+git clone https://github.com/James-Homan/TE-Time-Keeping.git
 ```
 
 ### 2. Open
