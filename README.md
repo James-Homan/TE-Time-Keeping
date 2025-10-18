@@ -15,7 +15,8 @@ This repository contains code for running the application. Our goals are to:
 git clone https://github.com/lmdavies13/Analyzing-MLB-Pitch-Data.git
 ```
 
-Open it in VS Code (or your preferred environment).
+### 2. Open
+Open the repository in VS Code (or your preferred environment).
 
 ## Usage
 
