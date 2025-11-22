@@ -14,6 +14,29 @@ from matplotlib.dates import DateFormatter
 import datetime
 
 #----------------------------------------------------------------------------------------------------------
+# GLOBALS
+#----------------------------------------------------------------------------------------------------------
+# Define areas
+areas = {
+    1: "Vigilance Focus Factory",
+    2: "Enterprise Focus Factory",
+    3: "Liberty Focus Factory",
+    4: "Intrepid Focus Factory",
+    5: "Freedom Focus Factory",
+    6: "Pioneer Focus Factory",
+    7: "ESS Chambers",
+    8: "Breaks",
+    9: "Training",
+    10: "E3 Projects"
+}
+
+log_file = "area_log.csv"
+idle_label = "Untracked (Idle)"
+start_label = "Start Time"
+current_area = idle_label
+#----------------------------------------------------------------------------------------------------------
+
+#----------------------------------------------------------------------------------------------------------
 # Logs entry and exit times to CSV
 #----------------------------------------------------------------------------------------------------------
 def log_entry_exit(area_name, entry_time, exit_time):
@@ -53,7 +76,6 @@ def update_display():
 #----------------------------------------------------------------------------------------------------------
 def exit_app():
     try:
-        entry_time
         exit_time = time.time()
         log_entry_exit(current_area, entry_time, exit_time)
         messagebox.showinfo("Exit", "Logging stopped. Data saved to 'area_log.csv'.")
@@ -145,26 +167,6 @@ def show_dashboard():
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
     fig.tight_layout(rect=[0, 0, 0.85, 1])
 #----------------------------------------------------------------------------------------------------------
-
-
-# Define areas
-areas = {
-    1: "Vigilance Focus Factory",
-    2: "Enterprise Focus Factory",
-    3: "Liberty Focus Factory",
-    4: "Intrepid Focus Factory",
-    5: "Freedom Focus Factory",
-    6: "Pioneer Focus Factory",
-    7: "ESS Chambers",
-    8: "Breaks",
-    9: "Training",
-    10: "E3 Projects"
-}
-
-log_file = "area_log.csv"
-idle_label = "Untracked (Idle)"
-start_label = "Start Time"
-current_area = idle_label
 
 # GUI Setup
 root = tk.Tk()
