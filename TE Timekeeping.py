@@ -1,7 +1,3 @@
-# pip install tk 
-# if SSL Errors type this into command line 
-# pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pip setuptools
-
 import time
 import csv
 import tkinter as tk
@@ -12,30 +8,51 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.dates import DateFormatter
 import datetime
+import TimePeriod
+
+#----------------------------------------------------------------------------------------------------------
+# GLOBALS
+#----------------------------------------------------------------------------------------------------------
+# Define areas
+areas = {
+    1: "Vigilance Focus Factory",
+    2: "Enterprise Focus Factory",
+    3: "Liberty Focus Factory",
+    4: "Intrepid Focus Factory",
+    5: "Freedom Focus Factory",
+    6: "Pioneer Focus Factory",
+    7: "ESS Chambers",
+    8: "Breaks",
+    9: "Training",
+    10: "E3 Projects"
+}
+
+log_file = "area_log.csv"
+idle_label = "Untracked (Idle)"
+start_label = "Start Time"
+timePeriod1 = TimePeriod.TimePeriod()
+#----------------------------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------------------------
 # Logs entry and exit times to CSV
 #----------------------------------------------------------------------------------------------------------
-def log_entry_exit(area_name, entry_time, exit_time):
-    if (entry_time != exit_time):
-        duration = exit_time - entry_time
+def log_entry_exit():
+    if (timePeriod1.get_start_time() != timePeriod1.get_stop_time()):
+        duration = timePeriod1.get_stop_time() - timePeriod1.get_start_time()
         with open(log_file, mode="a", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow([area_name, time.ctime(entry_time), time.ctime(exit_time), round(duration, 2)])
-    else:
-        return
+            writer.writerow([timePeriod1.get_area_name(), time.ctime(timePeriod1.get_start_time()), time.ctime(timePeriod1.get_stop_time()), round(duration, 2)])
 #----------------------------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------------------------
 # Switches to a new area and logs time
 #----------------------------------------------------------------------------------------------------------
 def switch_area(area_name):
-    global current_area, entry_time
-    if area_name != current_area:
-        exit_time = time.time()
-        log_entry_exit(current_area, entry_time, exit_time)
-        current_area = area_name
-        entry_time = time.time()
+    if area_name != timePeriod1.get_area_name():
+        timePeriod1.set_stop_time(time.time())
+        log_entry_exit()
+        timePeriod1.set_area_name(area_name)
+        timePeriod1.set_start_time(time.time())
         update_display()
 #----------------------------------------------------------------------------------------------------------
 
@@ -43,8 +60,8 @@ def switch_area(area_name):
 # Updates the GUI with the current area and elapsed time
 #----------------------------------------------------------------------------------------------------------
 def update_display():
-    elapsed = round(time.time() - entry_time, 2)
-    label.config(text=f"Current Area: {current_area}\nTime Spent: {elapsed} sec")
+    elapsed = round(time.time() - timePeriod1.get_start_time(), 2)
+    label.config(text=f"Current Area: {timePeriod1.get_area_name()}\nTime Spent: {elapsed} sec")
     root.after(1000, update_display)  # Refresh every second
 #----------------------------------------------------------------------------------------------------------
 
@@ -53,14 +70,14 @@ def update_display():
 #----------------------------------------------------------------------------------------------------------
 def exit_app():
     try:
-        entry_time
-        exit_time = time.time()
-        log_entry_exit(current_area, entry_time, exit_time)
+        timePeriod1.set_stop_time(time.time())
+        log_entry_exit()
         messagebox.showinfo("Exit", "Logging stopped. Data saved to 'area_log.csv'.")
-        root.destroy()
-        return
     except NameError:
-        messagebox.showinfo("Exit", "No logging session started.")
+        messagebox.showinfo("Exit", "No logging session started. No data recorded.")
+    except Exception as e:
+        messagebox.showerror("Error", e)
+    finally:
         root.destroy()
 #----------------------------------------------------------------------------------------------------------
 
@@ -69,8 +86,8 @@ def exit_app():
 #----------------------------------------------------------------------------------------------------------
 def start_log():
     try:
-        global entry_time
-        entry_time = time.time()
+        timePeriod1.set_start_time(time.time())
+        timePeriod1.set_area_name(idle_label)
         update_display()
         with open(log_file, mode="a", newline="") as file:
             writer = csv.writer(file)
@@ -146,26 +163,6 @@ def show_dashboard():
     fig.tight_layout(rect=[0, 0, 0.85, 1])
 #----------------------------------------------------------------------------------------------------------
 
-
-# Define areas
-areas = {
-    1: "Vigilance Focus Factory",
-    2: "Enterprise Focus Factory",
-    3: "Liberty Focus Factory",
-    4: "Intrepid Focus Factory",
-    5: "Freedom Focus Factory",
-    6: "Pioneer Focus Factory",
-    7: "ESS Chambers",
-    8: "Breaks",
-    9: "Training",
-    10: "E3 Projects"
-}
-
-log_file = "area_log.csv"
-idle_label = "Untracked (Idle)"
-start_label = "Start Time"
-current_area = idle_label
-
 # GUI Setup
 root = tk.Tk()
 root.title("Area Logger")
@@ -211,8 +208,7 @@ for j in range(cols):
 tk.Button(root, text="Set start", font=("Arial", 12), command=lambda: start_log()).pack(pady=10)
 
 # Idle button
-tk.Button(root, text="Set to Idle", font=("Arial", 12), command=lambda: switch_area(idle_label)).pack(
-    pady=10)
+tk.Button(root, text="Set to Idle", font=("Arial", 12), command=lambda: switch_area(idle_label)).pack(pady=10)
 
 # Show dashboard button
 tk.Button(root, text="Show Dashboard", font=("Arial", 12), bg="blue", fg="white", 
