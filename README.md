@@ -22,21 +22,22 @@ Open the repository in VS Code (or your preferred environment).
 ### 1. Install dependencies
 
 ```bash
-pip install tk
+pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org tk
 pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pip setuptools
-pip install matplotlib
-pip install pandas
+pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org matplotlib
+pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pandas
+pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org streamlit
 ```
 
 Or install all at once:
 
 ```bash
-pip install tk matplotlib pandas
+pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org tk matplotlib pandas streamlit
 ```
 
 ### 2. Open the Script
 
-- The main application script is `TE Timekeeping.py`.
+- The main application script is `TE_Timekeeping_toStreamLit.py`.
 - You can view or modify code, run the code in a python IDE, and see results interactively.
 
 ### 3. Run the project
