@@ -157,32 +157,15 @@ for num, name in areas.items():
             st.rerun()
             
 # Display log file
-st.subheader("Today's Log Entries")
+
 if os.path.exists(log_file):
     df = pd.read_csv(log_file)
-    
-    # Convert time strings to datetime
-    df['Entry Time'] = pd.to_datetime(df['Entry Time'])
-    df['Exit Time'] = pd.to_datetime(df['Exit Time'])
-    
-    # Filter for today's entries only
-    today = pd.Timestamp.now().date()
-    df_today = df[df['Entry Time'].dt.date == today]
-    
-    if not df_today.empty:
-        st.dataframe(df_today, use_container_width=True)
-    else:
-        st.info("No entries for today yet.")
-    
-    # Total Time visualization
-    st.subheader("Total Time Spent by Area")
     
     # Group by Area and sum duration
     area_totals = df.groupby('Area')['Duration (seconds)'].sum().reset_index()
     
-    
-    # ...existing code...
     if not area_totals.empty:
+        st.subheader("Total Time Spent by Area")
         area_totals['Duration (Hrs)'] = (area_totals['Duration (seconds)'] / 3600).round(2)
         
         # Create figure with dark background
@@ -218,7 +201,21 @@ if os.path.exists(log_file):
                     ha='center', va='bottom', color='white')
             
         plt.tight_layout()
-        st.pyplot(fig)
+        st.pyplot(fig, width='content')
+    
+    st.subheader("Today's Log Entries")
+    # Convert time strings to datetime
+    df['Entry Time'] = pd.to_datetime(df['Entry Time'])
+    df['Exit Time'] = pd.to_datetime(df['Exit Time'])
+    
+    # Filter for today's entries only
+    today = pd.Timestamp.now().date()
+    df_today = df[df['Entry Time'].dt.date == today]
+    
+    if not df_today.empty:
+        st.dataframe(df_today, width='stretch')
+    else:
+        st.info("No entries for today yet.")
     
 else:
     st.info("No log entries yet. Start logging to create entries.")
