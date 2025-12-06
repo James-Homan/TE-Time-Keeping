@@ -4,7 +4,6 @@ L3 Harris Test Engineering Project - Time Keeping
 This repository contains code for running the application. Our goals are to:
 
 - Create a working application that can track activity time per factory.
-- Make an executable out of the APP to be shared.
 
 ## Getting Started
 
@@ -15,11 +14,14 @@ git clone https://github.com/James-Homan/TE-Time-Keeping.git
 ```
 
 ### 2. Open
+
 Open the repository in VS Code (or your preferred environment).
 
 ## Usage
 
 ### 0. Python 3.12 Recommended
+
+During development, I found that python 3.12 is a good stable version to use. I recommend you build a venv to have a clean version of the libraries necessary to run this program.
 
 ### 1. Install dependencies
 
@@ -43,7 +45,8 @@ pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org tk mat
 - You can view or modify code, run the code in a python IDE, and see results interactively.
 
 ### 3. Run the project
-- This project will be designed to be a stand alone application. Simply just launch the application.
 
-### 4. Opening Generated .csv File to see timecard information
-- Before Closing Command Terminal, Close the GUI. after GUI is closed within Command line bash area_log.csv to open the timecard Database to populate time Card 2.0
+- ```bash
+  streamlit run ./TE_Timekeeping_toStreamLit.py
+  ```
+- The app will open from there
