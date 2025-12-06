@@ -19,6 +19,8 @@ Open the repository in VS Code (or your preferred environment).
 
 ## Usage
 
+### 0. Python 3.12 Recommended
+
 ### 1. Install dependencies
 
 ```bash
