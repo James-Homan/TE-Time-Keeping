@@ -10,16 +10,16 @@ import os
 # GLOBALS
 #----------------------------------------------------------------------------------------------------------
 areas = {
-    1: "Vigilance Focus Factory",
-    2: "Enterprise Focus Factory",
-    3: "Liberty Focus Factory",
-    4: "Intrepid Focus Factory",
-    5: "Freedom Focus Factory",
-    6: "Pioneer Focus Factory",
-    7: "ESS Chambers",
-    8: "Breaks",
-    9: "Training",
-    10: "E3 Projects"
+    1: ("Vigilance Focus Factory", 60012),
+    2: ("Enterprise Focus Factory", 60012),
+    3: ("Liberty Focus Factory", 60012),
+    4: ("Intrepid Focus Factory", 60012),
+    5: ("Freedom Focus Factory", 60012),
+    6: ("Pioneer Focus Factory", 60012),
+    7: ("Meeting", None),
+    8: ("Breaks", None),
+    9: ("Training", None),
+    10: ("E3 Projects",None)
 }
 
 log_file = "area_log.csv"
@@ -152,8 +152,8 @@ for num, name in areas.items():
     col_index = (num - 1) % 2
     with cols[col_index]:
         # Disable area switching if NOT logging
-        if st.button(name, width='stretch', disabled=not is_logging):
-            switch_area(name)
+        if st.button(name[0], width='stretch', disabled=not is_logging):
+            switch_area(name[0])
             st.rerun()
             
 # Display log file
@@ -167,6 +167,12 @@ if os.path.exists(log_file):
     if not area_totals.empty:
         st.subheader("Total Time Spent by Area")
         area_totals['Duration (Hrs)'] = (area_totals['Duration (seconds)'] / 3600).round(2)
+
+        # Calculate percentages for legend
+        total_seconds = area_totals['Duration (seconds)'].sum()
+        legend_labels = [f"{row['Area']} ({row['Duration (Hrs)']} hrs)" 
+                         for index, row in area_totals.iterrows()]
+
         
         # Create figure with dark background
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -174,34 +180,37 @@ if os.path.exists(log_file):
         fig.patch.set_facecolor(dark_blue)
         ax.set_facecolor(dark_blue)
         
-        # Create bars
-        bars = ax.bar(area_totals['Area'], area_totals['Duration (Hrs)'], 
-                     color=[plt.cm.Set3(i) for i in range(len(area_totals))])
+        # Create pie chart
+        wedges, texts, autotexts = ax.pie(
+            area_totals['Duration (Hrs)'], 
+            labels=None,
+            autopct='%1.1f%%',
+            startangle=90,
+            colors=[plt.cm.Set3(i) for i in range(len(area_totals))],
+            textprops=dict(color="white")
+        )
         
-        # Set labels and title to white
-        ax.set_ylabel("Total Time (Hrs)", color='white')
-        ax.set_xlabel("Work Area", color='white')
+        # Set title to white
         ax.set_title("Total Time Distribution", color='white')
         
-        # Set ticks to white
-        ax.tick_params(axis='x', colors='white')
-        ax.tick_params(axis='y', colors='white')
+        # Add Legend
+        legend = ax.legend(wedges, legend_labels, 
+                          title="Work Areas",
+                          loc="center left",
+                          bbox_to_anchor=(1, 0, 0.5, 1))
         
-        # Set chart borders (spines) to white
-        for spine in ax.spines.values():
-            spine.set_edgecolor('white')
-
-        plt.xticks(rotation=45)
+        # Style the legend for dark mode
+        plt.setp(legend.get_title(), color='white')
+        for text in legend.get_texts():
+            text.set_color("white")
+        legend.get_frame().set_facecolor(dark_blue)
+        legend.get_frame().set_edgecolor('white')
         
-        # Add labels on top of bars (in white)
-        for bar in bars:
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height,
-                    f'{height} hr',
-                    ha='center', va='bottom', color='white')
+        # Equal aspect ratio ensures that pie is drawn as a circle
+        ax.axis('equal')
             
         plt.tight_layout()
-        st.pyplot(fig, width='content')
+        st.pyplot(fig, use_container_width=True)
     
     st.subheader("Today's Log Entries")
     # Convert time strings to datetime
@@ -219,4 +228,3 @@ if os.path.exists(log_file):
     
 else:
     st.info("No log entries yet. Start logging to create entries.")
-
