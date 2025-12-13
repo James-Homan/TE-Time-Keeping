@@ -246,10 +246,10 @@ if os.path.exists(log_file):
     # Display Area Reference Table
     st.subheader("View Area Details")
     # Convert areas dict to DataFrame
-    area_data = [{"Area Name": v[0], "Charge Code": v[1] if v[1] is not None else "-"} for k, v in areas.items()]
+    area_data = [{"Area Name": v[0], "Charge Code": str(v[1]) if v[1] is not None else "-"} for k, v in areas.items()]
     df_areas = pd.DataFrame(area_data)
     # Display with formatting
-    st.dataframe(df_areas, use_container_width=True, hide_index=True)
+    st.dataframe(df_areas, width='stretch', hide_index=True)
     
     st.subheader("Log Entries")    
     if not df_date.empty:
