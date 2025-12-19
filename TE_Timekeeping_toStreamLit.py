@@ -25,18 +25,20 @@ areas = {
 
 # Define consistent colors for each area
 area_colors = {
-    "Vigilance Focus Factory": "#FF9999",   # Light Red
-    "Enterprise Focus Factory": "#66B2FF",  # Light Blue
-    "Liberty Focus Factory": "#99FF99",     # Light Green
-    "Intrepid Focus Factory": "#FFCC99",    # Light Orange
-    "Freedom Focus Factory": "#C2C2F0",     # Light Purple
-    "Pioneer Focus Factory": "#FFFF99",     # Light Yellow
+    "Vigilance": "#FF9999",   # Light Red
+    "Enterprise": "#66B2FF",  # Light Blue
+    "Liberty": "#99FF99",     # Light Green
+    "Intrepid": "#FFCC99",    # Light Orange
+    "Freedom": "#C2C2F0",     # Light Purple
+    "Pioneer": "#FFFF99",     # Light Yellow
     "Meeting": "#E0E0E0",                   # Light Grey
     "Breaks": "#80CBC4",                    # Teal
     "Training": "#FFD54F",                  # Amber
     "E3 Projects": "#A1887F",               # Brown
     "Untracked (Idle)": "#607D8B"           # Blue Grey
 }
+
+csv_labels = ["Area", "Entry Time", "Exit Time", "Duration (seconds)"]
 
 log_file = "area_log.csv"
 idle_label = "Untracked (Idle)"
@@ -90,7 +92,7 @@ def start_log():
     if not os.path.exists(log_file):
         with open(log_file, mode="w", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow(["Area", "Entry Time", "Exit Time", "Duration (seconds)"])
+            writer.writerow(csv_labels)
     
     st.success("Logging started!")
 
@@ -214,7 +216,7 @@ if os.path.exists(log_file):
         
         # Create pie chart
         wedges, texts = ax.pie(
-            area_totals['Duration (Hrs)'], 
+            area_totals['Duration (seconds)'], 
             labels=None,
             startangle=90,
             colors=pie_colors,
