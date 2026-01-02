@@ -26,17 +26,7 @@ During development, I found that python 3.12 is a good stable version to use. I 
 ### 1. Install dependencies
 
 ```bash
-pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org tk
-pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pip setuptools
-pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org matplotlib
-pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pandas
-pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org streamlit
-```
-
-Or install all at once:
-
-```bash
-pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org tk matplotlib pandas streamlit
+pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
 ```
 
 ### 2. Open the Script
