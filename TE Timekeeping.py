@@ -23,7 +23,7 @@ areas = {
     4: ("Intrepid Focus Factory", "60013"),
     5: ("Freedom Focus Factory", "60017"),
     6: ("Pioneer Focus Factory", "60014"),
-    7: ("ESS Chambers", "ESS"),
+    7: ("Meetings", "NPRD"),
     8: ("Breaks", "NPRD"),
     9: ("Training", "TRAIN"),
     10: ("E3 Projects", "NPRD")
