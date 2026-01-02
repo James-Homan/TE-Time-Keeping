@@ -1,3 +1,8 @@
+## Getting Started
+
+# Time-Card-Management
+Allows Employees to be able to properly allocate their time in each department into a timecard 
+
 # TE Time Keeping APP
 L3 Harris Test Engineering Project - Time Keeping
 
@@ -12,11 +17,10 @@ This repository contains code for running the application. Our goals are to:
 ### 1. Clone or download this repository
 
 ```bash
-git clone https://github.com/James-Homan/TE-Time-Keeping.git
+git clone https://github.com/zmanja42-ai/Time-Card-Management.git
 ```
 
-### 2. Open
-Open the repository in VS Code (or your preferred environment).
+Open it in VS Code (or your preferred environment).
 
 ## Usage
 
