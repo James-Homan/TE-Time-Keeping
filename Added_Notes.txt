@@ -1,0 +1,33 @@
+Open Power Shell:
+
+Navigate to your project directory:
+cd C:\Users\U136246\Downloads\TE-Time-Keeping-Zach-Dev\TE-Time-Keeping-Zach-Dev
+
+Delete the existing virtual environment folder named .venv.
+Recreate the virtual environment:
+
+python -m venv .venv
+
+
+Activate the virtual environment:
+
+.\.venv\Scripts\Activate.ps1
+
+
+If Issues trying to install requriements.txt within VENV then try:
+pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
+
+If Pip upgrade issue try:
+
+install --trusted-host pypi.org --trusted-host files.pythonhosted.org --upgrade pip
+
+Activate the virtual environment:
+.\.venv\Scripts\Activate.ps1
+
+Upgrade pip:
+C:\Users\U136246\Downloads\TE-Time-Keeping-Zach-Dev\TE-Time-Keeping-Zach-Dev\.venv\Scripts\python.exe -m pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org --upgrade pip
+
+Install the required packages ignoring SSL verification:
+pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
+
+If you follow these steps, it should allow you to upgrade pip and install the necessary dependencies despite the SSL issues.
