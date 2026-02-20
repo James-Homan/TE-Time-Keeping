@@ -1,1 +1,8 @@
-pip install streamlit pandas sqlalchemy openpyxl matplotlib
+streamlit
+pandas
+sqlalchemy
+openpyxl
+matplotlib
+plotly
+Flask==3.0.0
+Werkzeug==3.0.0
