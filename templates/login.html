@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-container">
+  <h1>Login / Create account</h1>
+
+  <div class="grid-2">
+    <section class="auth-panel">
+      <h2>Login</h2>
+      <form method="post" action="{{ url_for('auth.login') }}">
+        <label>Username</label>
+        <input type="text" name="username" required>
+
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <button type="submit">Log in</button>
+      </form>
+    </section>
+
+    <section class="auth-panel">
+      <h2>Create account</h2>
+      <form method="post" action="{{ url_for('auth.signup') }}">
+        <label>New username</label>
+        <input type="text" name="new_username" required>
+
+        <label>New password</label>
+        <input type="password" name="new_password" required>
+
+        <button type="submit">Sign up</button>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}
