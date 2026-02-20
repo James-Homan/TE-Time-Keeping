@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>Area Logger</h1>
+  <p>Log time against specific areas and charge codes.</p>
+</div>
+
+<div class="area-layout">
+  <section class="area-status-card">
+    <h2>Current status</h2>
+    {% if active_log %}
+      <p class="status-label active">Logging active</p>
+      <p><strong>Started:</strong> {{ active_log["start_time"] }}</p>
+      <form method="post" class="status-actions">
+        <button name="action" value="stop" class="btn-danger">Stop logging</button>
+      </form>
+    {% else %}
+      <p class="status-label idle">No active logging</p>
+      <p>Select an area to start tracking time.</p>
+    {% endif %}
+  </section>
+
+  <section class="area-selection-card">
+    <h2>Start / Switch area</h2>
+    <form method="post" class="area-form">
+      <label>Area</label>
+      <select name="area_id" required>
+        {% for area in areas %}
+          <option value="{{ area.id }}">
+            {{ area.name }} ({{ area.department_code }}) – {{ area.charge_code or "No charge" }}
+          </option>
+        {% endfor %}
+      </select>
+
+      <div class="button-row">
+        <button type="submit" name="action" value="start" class="btn-primary">Start</button>
+        <button type="submit" name="action" value="switch" class="btn-secondary">Switch</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<section class="logs-section">
+  <div class="logs-header">
+    <h2>Activity logs</h2>
+    <form method="get" class="date-range-form">
+      <label>From</label>
+      <input type="date" name="from" value="{{ start_date }}">
+      <label>To</label>
+      <input type="date" name="to" value="{{ end_date }}">
+      <button type="submit" class="btn-secondary">Update</button>
+      <a class="btn-outline" href="{{ url_for('area_logger.export_csv', from=start_date, to=end_date) }}">Export CSV</a>
+    </form>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Area</th>
+        <th>Department</th>
+        <th>Charge</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Duration (hours)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+        <tr>
+          <td>{{ log.area_name }}</td>
+          <td>{{ log.department_code }}</td>
+          <td>{{ log.charge_code }}</td>
+          <td>{{ log.start_time }}</td>
+          <td>{{ log.end_time or '-' }}</td>
+          <td>{{ '%.3f'|format(log.duration_hours) }}</td>
+        </tr>
+      {% endfor %}
+      {% if not logs %}
+        <tr>
+          <td colspan="6" class="empty-row">No logs in this range.</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
