@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>T/S Log</h1>
+  <p>Track task-specific and supplemental work.</p>
+</div>
+
+<div class="area-layout">
+  <section class="area-status-card">
+    <h2>Current task</h2>
+    {% if active_ts %}
+      <p class="status-label active">T/S logging active</p>
+      <p><strong>Task:</strong> {{ active_ts["task_name"] }}</p>
+      <p><strong>Started:</strong> {{ active_ts["start_time"] }}</p>
+      {% if active_ts["category"] %}
+        <p><strong>Category:</strong> {{ active_ts["category"] }}</p>
+      {% endif %}
+      <p><strong>Description:</strong> {{ active_ts["description"] or '-' }}</p>
+      <form method="post" class="status-actions">
+        <button name="action" value="stop" class="btn-danger">Stop current task</button>
+      </form>
+    {% else %}
+      <p class="status-label idle">No active T/S log</p>
+      <p>Start a new task log below.</p>
+    {% endif %}
+  </section>
+
+  <section class="area-selection-card">
+    <h2>Start new task</h2>
+    <form method="post" class="area-form">
+      <input type="hidden" name="action" value="start">
+      <label>Task name</label>
+      <input type="text" name="task_name" required>
+
+      <label>Category (optional)</label>
+      <input type="text" name="category" placeholder="e.g. Documentation, Support, Review">
+
+      <label>Description (optional)</label>
+      <textarea name="description" rows="3" placeholder="Brief description of the task..."></textarea>
+
+      <button type="submit" class="btn-primary">Start T/S log</button>
+    </form>
+  </section>
+</div>
+
+<section class="logs-section">
+  <div class="logs-header">
+    <h2>Task history</h2>
+    <form method="get" class="date-range-form">
+      <label>From</label>
+      <input type="date" name="from" value="{{ start_date }}">
+      <label>To</label>
+      <input type="date" name="to" value="{{ end_date }}">
+      <button type="submit" class="btn-secondary">Update</button>
+    </form>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Task</th>
+        <th>Category</th>
+        <th>Description</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Duration (hours)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+        <tr>
+          <td>{{ log.task_name }}</td>
+          <td>{{ log.category or '-' }}</td>
+          <td>{{ log.description or '-' }}</td>
+          <td>{{ log.start_time }}</td>
+          <td>{{ log.end_time or '-' }}</td>
+          <td>{{ '%.3f'|format(log.duration_hours) }}</td>
+        </tr>
+      {% endfor %}
+      {% if not logs %}
+        <tr>
+          <td colspan="6" class="empty-row">No tasks in this range.</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
