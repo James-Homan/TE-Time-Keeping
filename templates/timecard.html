@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>Timecard summary</h1>
+  <p>Review aggregated hours by area and department.</p>
+</div>
+
+<form method="get" class="date-range-form">
+  <label>From</label>
+  <input type="date" name="from" value="{{ start_date }}">
+  <label>To</label>
+  <input type="date" name="to" value="{{ end_date }}">
+  <button type="submit" class="btn-secondary">Update</button>
+</form>
+
+<div class="timecard-layout">
+  <section class="chart-card">
+    <h2>Hours by area</h2>
+    <canvas id="areaHoursChart"></canvas>
+  </section>
+
+  <section class="summary-card">
+    <h2>Summary table</h2>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Area</th>
+          <th>Department</th>
+          <th>Charge Code</th>
+          <th>Hours</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for (area_name, dept, charge), hours in summary.items() %}
+          <tr>
+            <td>{{ area_name }}</td>
+            <td>{{ dept }}</td>
+            <td>{{ charge }}</td>
+            <td>{{ '%.2f'|format(hours) }}</td>
+          </tr>
+        {% endfor %}
+        {% if not summary %}
+          <tr>
+            <td colspan="4" class="empty-row">No data in this range.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<script>
+  const chartLabels = {{ chart_labels | tojson }};
+  const chartData = {{ chart_data | tojson }};
+</script>
+{% endblock %}
