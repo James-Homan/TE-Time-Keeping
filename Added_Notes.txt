@@ -31,3 +31,7 @@ Install the required packages ignoring SSL verification:
 pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
 
 If you follow these steps, it should allow you to upgrade pip and install the necessary dependencies despite the SSL issues.
+
+To Run App:
+Bash:
+python app.py
