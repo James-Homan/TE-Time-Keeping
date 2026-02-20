@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-container">
+  <h1 class="dashboard-title">My Dashboard</h1>
+  <p class="dashboard-welcome">Welcome, {{ username }}.</p>
+
+  <div class="dashboard-cards">
+    <a class="dash-card" href="{{ url_for('area_logger.index') }}">
+      <div class="dash-card-title">Area Logger</div>
+      <div class="dash-card-desc">Track time by area and department, with exportable logs.</div>
+    </a>
+
+    <a class="dash-card" href="{{ url_for('timecard.index') }}">
+      <div class="dash-card-title">Timecard</div>
+      <div class="dash-card-desc">See daily/weekly summaries and visual breakdowns.</div>
+    </a>
+
+    <a class="dash-card" href="{{ url_for('ts_log.index') }}">
+      <div class="dash-card-title">T/S Log</div>
+      <div class="dash-card-desc">Log task-specific work and supplemental entries.</div>
+    </a>
+  </div>
+</div>
+{% endblock %}
