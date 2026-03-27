@@ -23,6 +23,8 @@
         <li><a href="{{ url_for('area_logger.index') }}">Area Logger</a></li>
         <li><a href="{{ url_for('timecard.index') }}">Timecard</a></li>
         <li><a href="{{ url_for('ts_log.index') }}">T/S Log</a></li>
+        <li><a href="{{ url_for('management.charge_codes_list') }}">Charge Codes</a></li>
+        <li><a href="{{ url_for('management.areas_list') }}">Areas</a></li>
         <li><a href="{{ url_for('auth.logout') }}">Log out</a></li>
       {% else %}
         <li><a href="{{ url_for('auth.login') }}">Login</a></li>

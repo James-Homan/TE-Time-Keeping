@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if area else 'Create' }} Area{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header-section">
+        <h1>{{ 'Edit' if area else 'Create' }} Area</h1>
+        <a href="{{ url_for('management.areas_list') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Areas
+        </a>
+    </div>
+
+    <div class="card">
+        <form method="POST" class="form">
+            <div class="form-group">
+                <label for="name">Area Name *</label>
+                <input type="text"
+                       id="name"
+                       name="name"
+                       value="{{ area.name if area else '' }}"
+                       required
+                       maxlength="100"
+                       placeholder="Enter area name (e.g., Main Office)">
+                <small class="form-help">Name of the work area or location</small>
+            </div>
+
+            <div class="form-group">
+                <label for="charge_code_id">Charge Code</label>
+                <select id="charge_code_id" name="charge_code_id">
+                    <option value="">-- Select Charge Code (Optional) --</option>
+                    {% for charge_code in charge_codes %}
+                    <option value="{{ charge_code.id }}"
+                            {{ 'selected' if (area and area.charge_code_id == charge_code.id) else '' }}>
+                        {{ charge_code.code }} - {{ charge_code.description or 'No description' }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <small class="form-help">Associate this area with a charge code for billing purposes</small>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description"
+                          name="description"
+                          rows="3"
+                          placeholder="Enter description (optional)">{{ area.description if area else '' }}</textarea>
+                <small class="form-help">Optional description of the area</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> {{ 'Update' if area else 'Create' }} Area
+                </button>
+                <a href="{{ url_for('management.areas_list') }}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

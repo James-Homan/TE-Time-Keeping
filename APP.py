@@ -6,6 +6,7 @@ from auth import auth_bp
 from area_logger import area_logger_bp
 from timecard import timecard_bp
 from ts_log import ts_log_bp
+from management import management_bp
 
 def create_app():
     app = Flask(__name__)
@@ -23,6 +24,16 @@ def create_app():
     app.register_blueprint(area_logger_bp)
     app.register_blueprint(timecard_bp)
     app.register_blueprint(ts_log_bp)
+    app.register_blueprint(management_bp)
+
+    @app.after_request
+    def add_security_headers(response):
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        response.headers['Content-Security-Policy'] = "default-src 'self'"
+        return response
 
     @app.route("/")
     def dashboard():

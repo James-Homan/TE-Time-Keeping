@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if charge_code else 'Create' }} Charge Code{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header-section">
+        <h1>{{ 'Edit' if charge_code else 'Create' }} Charge Code</h1>
+        <a href="{{ url_for('management.charge_codes_list') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Charge Codes
+        </a>
+    </div>
+
+    <div class="card">
+        <form method="POST" class="form">
+            <div class="form-group">
+                <label for="code">Charge Code *</label>
+                <input type="text"
+                       id="code"
+                       name="code"
+                       value="{{ charge_code.code if charge_code else '' }}"
+                       required
+                       maxlength="20"
+                       placeholder="Enter charge code (e.g., PROJ001)">
+                <small class="form-help">Unique identifier for the charge code</small>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description"
+                          name="description"
+                          rows="3"
+                          placeholder="Enter description (optional)">{{ charge_code.description if charge_code else '' }}</textarea>
+                <small class="form-help">Optional description of what this charge code is used for</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> {{ 'Update' if charge_code else 'Create' }} Charge Code
+                </button>
+                <a href="{{ url_for('management.charge_codes_list') }}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
