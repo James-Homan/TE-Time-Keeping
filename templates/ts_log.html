@@ -1,88 +1,367 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="page-header">
-  <h1>T/S Log</h1>
-  <p>Track task-specific and supplemental work.</p>
-</div>
-
-<div class="area-layout">
-  <section class="area-status-card">
-    <h2>Current task</h2>
-    {% if active_ts %}
-      <p class="status-label active">T/S logging active</p>
-      <p><strong>Task:</strong> {{ active_ts["task_name"] }}</p>
-      <p><strong>Started:</strong> {{ active_ts["start_time"] }}</p>
-      {% if active_ts["category"] %}
-        <p><strong>Category:</strong> {{ active_ts["category"] }}</p>
-      {% endif %}
-      <p><strong>Description:</strong> {{ active_ts["description"] or '-' }}</p>
-      <form method="post" class="status-actions">
-        <button name="action" value="stop" class="btn-danger">Stop current task</button>
-      </form>
-    {% else %}
-      <p class="status-label idle">No active T/S log</p>
-      <p>Start a new task log below.</p>
-    {% endif %}
-  </section>
-
-  <section class="area-selection-card">
-    <h2>Start new task</h2>
-    <form method="post" class="area-form">
-      <input type="hidden" name="action" value="start">
-      <label>Task name</label>
-      <input type="text" name="task_name" required>
-
-      <label>Category (optional)</label>
-      <input type="text" name="category" placeholder="e.g. Documentation, Support, Review">
-
-      <label>Description (optional)</label>
-      <textarea name="description" rows="3" placeholder="Brief description of the task..."></textarea>
-
-      <button type="submit" class="btn-primary">Start T/S log</button>
-    </form>
-  </section>
-</div>
-
-<section class="logs-section">
-  <div class="logs-header">
-    <h2>Task history</h2>
-    <form method="get" class="date-range-form">
-      <label>From</label>
-      <input type="date" name="from" value="{{ start_date }}">
-      <label>To</label>
-      <input type="date" name="to" value="{{ end_date }}">
-      <button type="submit" class="btn-secondary">Update</button>
-    </form>
+<div class="container-fluid mt-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="mb-1">T/S Log (Task/Service Log)</h1>
+      <p class="text-muted">Track task-specific and supplemental work with detailed tracking</p>
+    </div>
   </div>
 
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th>Task</th>
-        <th>Category</th>
-        <th>Description</th>
-        <th>Start</th>
-        <th>End</th>
-        <th>Duration (hours)</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for log in logs %}
-        <tr>
-          <td>{{ log.task_name }}</td>
-          <td>{{ log.category or '-' }}</td>
-          <td>{{ log.description or '-' }}</td>
-          <td>{{ log.start_time }}</td>
-          <td>{{ log.end_time or '-' }}</td>
-          <td>{{ '%.3f'|format(log.duration_hours) }}</td>
-        </tr>
-      {% endfor %}
-      {% if not logs %}
-        <tr>
-          <td colspan="6" class="empty-row">No tasks in this range.</td>
-        </tr>
-      {% endif %}
-    </tbody>
-  </table>
-</section>
+  <!-- Current Task Status -->
+  <div class="row mb-4">
+    <div class="col-lg-6 col-md-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Current Task</h5>
+        </div>
+        <div class="card-body">
+          {% if active_ts %}
+            <div class="alert alert-info" role="alert">
+              <strong><i class="fas fa-play-circle"></i> Task Logging Active</strong>
+            </div>
+            <table class="table table-sm mb-0">
+              <tr>
+                <th>Task Name</th>
+                <td><strong>{{ active_ts.task_name }}</strong></td>
+              </tr>
+              <tr>
+                <th>Station</th>
+                <td>{{ active_ts.station or '-' }}</td>
+              </tr>
+              <tr>
+                <th>Problem</th>
+                <td>{{ active_ts.problem or '-' }}</td>
+              </tr>
+              <tr>
+                <th>Priority</th>
+                <td>
+                  <span class="badge badge-{% if active_ts.priority == 'High' %}danger{% elif active_ts.priority == 'Medium' %}warning{% else %}info{% endif %}">
+                    {{ active_ts.priority or 'Low' }}
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <th>Started</th>
+                <td><small>{{ active_ts.start_time }}</small></td>
+              </tr>
+              <tr>
+                <th>Category</th>
+                <td>{{ active_ts.category or '-' }}</td>
+              </tr>
+            </table>
+            <form method="POST" class="mt-3">
+              <input type="hidden" name="action" value="stop">
+              <button type="submit" class="btn btn-danger btn-block">
+                <i class="fas fa-stop-circle"></i> Stop Current Task
+              </button>
+            </form>
+          {% else %}
+            <p class="text-muted text-center py-4">
+              <i class="fas fa-pause-circle"></i><br>
+              No active task. Start a new one below.
+            </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="col-lg-6 col-md-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Quick Navigation</h5>
+        </div>
+        <div class="card-body">
+          <div class="list-group list-group-flush">
+            <a href="{{ url_for('dashboard.index') }}" class="list-group-item list-group-item-action">
+              <i class="fas fa-chart-pie"></i> Back to Dashboard
+            </a>
+            <a href="{{ url_for('dashboard.detailed') }}" class="list-group-item list-group-item-action">
+              <i class="fas fa-chart-line"></i> View Analytics
+            </a>
+            <a href="{{ url_for('area_logger.index') }}" class="list-group-item list-group-item-action">
+              <i class="fas fa-clock"></i> Area Logger
+            </a>
+            <a href="{{ url_for('settings.index') }}" class="list-group-item list-group-item-action">
+              <i class="fas fa-sliders-h"></i> Settings
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Start New Task Form -->
+  <div class="row mb-4">
+    <div class="col-lg-8 col-md-12 mx-auto">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Start New Task</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST" class="form-horizontal">
+            <input type="hidden" name="action" value="start">
+
+            <!-- Task Name -->
+            <div class="form-group">
+              <label for="taskName"><strong>Task Name *</strong></label>
+              <input type="text" id="taskName" name="task_name" class="form-control" required 
+                placeholder="e.g., Fix equipment issue, Documentation review">
+            </div>
+
+            <!-- Station -->
+            <div class="form-group">
+              <label for="station"><strong>Station / Location</strong></label>
+              <input type="text" id="station" name="station" class="form-control" 
+                placeholder="e.g., Lab 3, Build Area A, Quality Check">
+            </div>
+
+            <!-- Problem -->
+            <div class="form-group">
+              <label for="problem"><strong>Problem Description</strong></label>
+              <textarea id="problem" name="problem" class="form-control" rows="2" 
+                placeholder="Describe the issue or task requirement..."></textarea>
+            </div>
+
+            <!-- Solution -->
+            <div class="form-group">
+              <label for="solution"><strong>Solution / Action Taken</strong></label>
+              <textarea id="solution" name="solution" class="form-control" rows="2" 
+                placeholder="Describe what was done to resolve it..."></textarea>
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+              <label for="category"><strong>Category</strong></label>
+              <select id="category" name="category" class="form-control">
+                <option value="">-- Select or type custom --</option>
+                <option value="Documentation">Documentation</option>
+                <option value="Support">Support</option>
+                <option value="Review">Review</option>
+                <option value="Maintenance">Maintenance</option>
+                <option value="Testing">Testing</option>
+                <option value="Development">Development</option>
+              </select>
+            </div>
+
+            <!-- Priority -->
+            <div class="form-group">
+              <label for="priority"><strong>Priority</strong></label>
+              <select id="priority" name="priority" class="form-control">
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+              <label for="description"><strong>Additional Notes</strong></label>
+              <textarea id="description" name="description" class="form-control" rows="2" 
+                placeholder="Any additional information..."></textarea>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary btn-lg btn-block">
+              <i class="fas fa-play-circle"></i> Start T/S Log
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task History -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <h5 class="mb-2 mb-md-0">Task History</h5>
+            <div class="d-flex flex-wrap">
+              <form method="GET" class="form-inline mr-2" id="dateForm">
+                <div class="form-group mr-2 mb-2">
+                  <label for="fromDate" class="mr-2">From:</label>
+                  <input type="date" id="fromDate" name="from" class="form-control form-control-sm" value="{{ start_date }}">
+                </div>
+                <div class="form-group mr-2 mb-2">
+                  <label for="toDate" class="mr-2">To:</label>
+                  <input type="date" id="toDate" name="to" class="form-control form-control-sm" value="{{ end_date }}">
+                </div>
+                <button type="submit" class="btn btn-sm btn-outline-primary mb-2">Filter</button>
+              </form>
+              <div class="btn-group mb-2" role="group">
+                <a href="{{ url_for('ts_log.export_pdf', from=start_date, to=end_date) }}" class="btn btn-sm btn-outline-secondary">
+                  <i class="fas fa-file-pdf"></i> PDF
+                </a>
+                <a href="{{ url_for('ts_log.export_excel', from=start_date, to=end_date) }}" class="btn btn-sm btn-outline-secondary">
+                  <i class="fas fa-file-excel"></i> Excel
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="thead-light">
+              <tr>
+                <th>Task Name</th>
+                <th>Station</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Duration (h)</th>
+                <th>Start Time</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for log in logs %}
+                <tr>
+                  <td><strong>{{ log.task_name }}</strong></td>
+                  <td>{{ log.station or '-' }}</td>
+                  <td>
+                    <span class="badge badge-{% if log.priority == 'High' %}danger{% elif log.priority == 'Medium' %}warning{% else %}info{% endif %}">
+                      {{ log.priority or 'Low' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge badge-{% if log.status == 'Completed' %}success{% elif log.status == 'In Progress' %}primary{% else %}secondary{% endif %}">
+                      {{ log.status or 'Pending' }}
+                    </span>
+                  </td>
+                  <td>{{ "%.2f"|format(log.duration_hours) }}</td>
+                  <td><small>{{ log.start_time|truncate(16, True, '') }}</small></td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <a href="#" class="btn btn-outline-info" onclick="showDetails(event, {{ log | tojson }})" title="View Details">
+                        <i class="fas fa-info-circle"></i>
+                      </a>
+                      {% if log.end_time %}
+                        <a href="{{ url_for('ts_log.edit_log', log_id=log.id) }}" class="btn btn-outline-primary" title="Edit Task">
+                          <i class="fas fa-edit"></i>
+                        </a>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+              {% if not logs %}
+                <tr>
+                  <td colspan="7" class="text-center text-muted py-4">
+                    No tasks in this date range.
+                  </td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailsLabel">Task Details</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Details will be populated here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showDetails(event, log) {
+    event.preventDefault();
+    
+    let html = `
+      <dl class="row">
+        <dt class="col-sm-3">Task Name</dt>
+        <dd class="col-sm-9"><strong>${log.task_name}</strong></dd>
+        
+        <dt class="col-sm-3">Station</dt>
+        <dd class="col-sm-9">${log.station || '-'}</dd>
+        
+        <dt class="col-sm-3">Problem</dt>
+        <dd class="col-sm-9">${log.problem || '-'}</dd>
+        
+        <dt class="col-sm-3">Solution</dt>
+        <dd class="col-sm-9">${log.solution || '-'}</dd>
+        
+        <dt class="col-sm-3">Category</dt>
+        <dd class="col-sm-9">${log.category || '-'}</dd>
+        
+        <dt class="col-sm-3">Priority</dt>
+        <dd class="col-sm-9"><span class="badge badge-${log.priority === 'High' ? 'danger' : log.priority === 'Medium' ? 'warning' : 'info'}">${log.priority || 'Low'}</span></dd>
+        
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9"><span class="badge badge-${log.status === 'Completed' ? 'success' : log.status === 'In Progress' ? 'primary' : 'secondary'}">${log.status || 'Pending'}</span></dd>
+        
+        <dt class="col-sm-3">Duration</dt>
+        <dd class="col-sm-9">${(log.duration_hours).toFixed(2)} hours</dd>
+        
+        <dt class="col-sm-3">Start Time</dt>
+        <dd class="col-sm-9">${log.start_time}</dd>
+        
+        <dt class="col-sm-3">End Time</dt>
+        <dd class="col-sm-9">${log.end_time || '-'}</dd>
+        
+        <dt class="col-sm-3">Description</dt>
+        <dd class="col-sm-9">${log.description || '-'}</dd>
+      </dl>
+    `;
+    
+    document.getElementById('modalBody').innerHTML = html;
+    $('#detailsModal').modal('show');
+  }
+</script>
+
+<style>
+  @media (max-width: 768px) {
+    .form-inline {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .form-group {
+      width: 100%;
+      margin-right: 0 !important;
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    
+    .form-group input,
+    .form-group select {
+      width: 100%;
+    }
+
+    .table {
+      font-size: 0.85rem;
+    }
+
+    .d-flex {
+      flex-direction: column;
+    }
+
+    .justify-content-between {
+      justify-content: flex-start !important;
+    }
+  }
+</style>
 {% endblock %}

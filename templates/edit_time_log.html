@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1>Edit Time Log</h1>
+        <a href="{{ url_for('area_logger.index') }}" class="btn btn-outline-secondary">Back to Area Logger</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Form -->
+  <div class="row">
+    <div class="col-lg-8 col-md-12 mx-auto">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Edit Time Log Entry</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST" class="form-horizontal">
+            <!-- Area Selection -->
+            <div class="form-group">
+              <label for="area_id"><strong>Area *</strong></label>
+              <select id="area_id" name="area_id" class="form-control" required>
+                <option value="">-- Select an area --</option>
+                {% for area in areas %}
+                  <option value="{{ area.id }}" {% if area.id == log.area_id %}selected{% endif %}>
+                    {{ area.name }}
+                  </option>
+                {% endfor %}
+              </select>
+              <small class="form-text text-muted">The work area where time was logged</small>
+            </div>
+
+            <!-- Start Time -->
+            <div class="form-group">
+              <label for="start_time"><strong>Start Time *</strong></label>
+              <input type="datetime-local" id="start_time" name="start_time" class="form-control" 
+                value="{{ log.start_time|strptime('%Y-%m-%dT%H:%M:%S.%f')|strftime('%Y-%m-%dT%H:%M') }}" required>
+              <small class="form-text text-muted">When you started working in this area</small>
+            </div>
+
+            <!-- End Time -->
+            <div class="form-group">
+              <label for="end_time"><strong>End Time *</strong></label>
+              <input type="datetime-local" id="end_time" name="end_time" class="form-control" 
+                value="{% if log.end_time %}{{ log.end_time|strptime('%Y-%m-%dT%H:%M:%S.%f')|strftime('%Y-%m-%dT%H:%M') }}{% endif %}" required>
+              <small class="form-text text-muted">When you stopped working in this area</small>
+            </div>
+
+            <!-- Duration Display -->
+            <div class="form-group">
+              <label><strong>Duration</strong></label>
+              <div class="alert alert-info">
+                <strong>Current Duration:</strong> 
+                {% if log.end_time %}
+                  {% set start = log.start_time|strptime('%Y-%m-%dT%H:%M:%S.%f') %}
+                  {% set end = log.end_time|strptime('%Y-%m-%dT%H:%M:%S.%f') %}
+                  {% set duration = (end - start).total_seconds() / 3600 %}
+                  {{ "%.2f"|format(duration) }} hours
+                {% else %}
+                  Active log (no end time set)
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save"></i> Update Time Log
+              </button>
+              <a href="{{ url_for('area_logger.index') }}" class="btn btn-outline-secondary ml-2">
+                <i class="fas fa-times"></i> Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show position-fixed" 
+          style="top: 20px; right: 20px; z-index: 1050; width: auto; max-width: 300px;" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+</div>
+
+<style>
+  /* Mobile responsive adjustments */
+  @media (max-width: 768px) {
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .btn {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-outline-secondary {
+      margin-left: 0 !important;
+    }
+  }
+</style>
+{% endblock %}

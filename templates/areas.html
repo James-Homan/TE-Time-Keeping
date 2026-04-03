@@ -40,9 +40,9 @@
                 <div class="area-charge-code">
                     <strong>Charge Code:</strong>
                     {% if area.charge_code %}
-                        <span class="charge-code-badge">{{ area.charge_code.code }}</span>
-                        {% if area.charge_code.description %}
-                        <small>{{ area.charge_code.description }}</small>
+                        <span class="charge-code-badge">{{ area.charge_code }}</span>
+                        {% if area.charge_code_description %}
+                        <small>{{ area.charge_code_description }}</small>
                         {% endif %}
                     {% else %}
                         <span class="no-charge-code">None assigned</span>

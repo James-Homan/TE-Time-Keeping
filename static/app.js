@@ -47,3 +47,42 @@
     },
   });
 })();
+
+// Live clock and elapsed timer
+(function () {
+  function formatDuration(seconds) {
+    seconds = Math.max(0, Math.round(seconds));
+    const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${s}`;
+  }
+
+  const clockEl = document.getElementById('liveClock');
+  const currentTimeEl = document.getElementById('currentTime');
+  const lastUpdatedEl = document.getElementById('lastUpdated');
+  const elapsedEl = document.getElementById('elapsedTime');
+  const activeStartEl = document.getElementById('activeStart');
+
+  function tick() {
+    const now = new Date();
+    const formatted = now.toLocaleTimeString();
+
+    if (clockEl) clockEl.textContent = formatted;
+    if (currentTimeEl) currentTimeEl.textContent = formatted;
+    if (lastUpdatedEl) lastUpdatedEl.textContent = now.toLocaleString();
+
+    if (elapsedEl && activeStartEl && activeStartEl.textContent) {
+      const startValue = new Date(activeStartEl.textContent);
+      if (!Number.isNaN(startValue.getTime())) {
+        const diffSeconds = (now - startValue) / 1000;
+        elapsedEl.textContent = formatDuration(diffSeconds);
+      }
+    }
+  }
+
+  if (clockEl || currentTimeEl || lastUpdatedEl) {
+    tick();
+    setInterval(tick, 1000);
+  }
+})();

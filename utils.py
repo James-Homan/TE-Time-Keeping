@@ -1,6 +1,4 @@
 import hashlib
-from sqlalchemy.orm import sessionmaker
-from models import User, UserMeta, SessionLocal
 import os
 
 AREAS = {
@@ -26,7 +24,9 @@ def verify_password(plain: str, hashed: str) -> bool:
     return get_password_hash(plain) == hashed
 
 def get_db():
-    return SessionLocal()
+    """Get database connection - placeholder for future use"""
+    # This function is deprecated - use models.get_db() instead
+    return None
 
 def get_department_code(area_name: str) -> str:
     for _, (name, code) in AREAS.items():
@@ -35,13 +35,19 @@ def get_department_code(area_name: str) -> str:
     return ""
 
 def get_user_charge_code_by_username(username: str) -> str:
+    """Deprecated: Get charge code for user by username
+    
+    This function is deprecated. Charge codes are now managed through
+    the models.py interface with SQLite.
+    """
     try:
+        from models import get_db
         db = get_db()
-        user = db.query(User).filter(User.username == username).first()
+        # Query the user and their metadata if needed
+        user = db.execute("SELECT * FROM user WHERE username = ?", (username,)).fetchone()
         if user:
-            meta = db.query(UserMeta).filter(UserMeta.user_id == user.id).first()
-            if meta and meta.charge_code:
-                return meta.charge_code
+            # For now, return empty string - extend as needed
+            return ""
     except Exception:
         pass
     return ""
@@ -66,18 +72,14 @@ def fetch_charge_code_for_user(username: str) -> str:
     return code
 
 def set_user_charge_code_by_username(username: str, code: str) -> bool:
+    """Deprecated: Set charge code for user
+    
+    This function is deprecated. Charge codes are now managed through
+    the models.py interface with SQLite.
+    """
     try:
-        db = get_db()
-        user = db.query(User).filter(User.username == username).first()
-        if not user:
-            return False
-        meta = db.query(UserMeta).filter(UserMeta.user_id == user.id).first()
-        if not meta:
-            meta = UserMeta(user_id=user.id, charge_code=code)
-            db.add(meta)
-        else:
-            meta.charge_code = code
-        db.commit()
-        return True
+        # Placeholder implementation for future enhancement
+        # Would store user metadata in database
+        return False
     except Exception:
         return False

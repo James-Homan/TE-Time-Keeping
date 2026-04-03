@@ -1,24 +1,373 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="dashboard-container">
-  <h1 class="dashboard-title">My Dashboard</h1>
-  <p class="dashboard-welcome">Welcome, {{ username }}.</p>
+<div class="container-fluid mt-4">
+  <!-- Header with Welcome and Quick Links -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <div>
+          <h1 class="mb-1">Dashboard</h1>
+          <p class="text-muted mb-0">Welcome, <strong>{{ session.username }}</strong></p>
+        </div>
+        <div class="btn-group" role="group">
+          <a href="{{ url_for('settings.index') }}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-cog"></i> Settings
+          </a>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <div class="dashboard-cards">
-    <a class="dash-card" href="{{ url_for('area_logger.index') }}">
-      <div class="dash-card-title">Area Logger</div>
-      <div class="dash-card-desc">Track time by area and department, with exportable logs.</div>
-    </a>
+  <!-- Quick Status Cards -->
+  <div class="row mb-4">
+    <!-- Today's Hours -->
+    <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="card-title text-muted mb-2">Today's Hours</h6>
+          <h3 class="mb-2">{{ total_hours }}h</h3>
+          {% if active_time_log %}
+            <span class="badge badge-success">Active</span>
+          {% else %}
+            <span class="badge badge-secondary">Idle</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
 
-    <a class="dash-card" href="{{ url_for('timecard.index') }}">
-      <div class="dash-card-title">Timecard</div>
-      <div class="dash-card-desc">See daily/weekly summaries and visual breakdowns.</div>
-    </a>
+    <!-- Week Hours -->
+    <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="card-title text-muted mb-2">This Week</h6>
+          <h3 class="mb-2">{{ week_hours }}h</h3>
+          <small class="text-muted">7-day total</small>
+        </div>
+      </div>
+    </div>
 
-    <a class="dash-card" href="{{ url_for('ts_log.index') }}">
-      <div class="dash-card-title">T/S Log</div>
-      <div class="dash-card-desc">Log task-specific work and supplemental entries.</div>
-    </a>
+    <!-- Month Hours -->
+    <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="card-title text-muted mb-2">This Month</h6>
+          <h3 class="mb-2">{{ month_hours }}h</h3>
+          <small class="text-muted">Month total</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasks Count -->
+    <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="card-title text-muted mb-2">Tasks Today</h6>
+          <h3 class="mb-2">{{ task_count }}</h3>
+          <small class="text-muted">T/S Log entries</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="row mb-4">
+    <!-- Time by Area Pie Chart -->
+    <div class="col-lg-6 col-md-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Time by Area</h5>
+        </div>
+        <div class="card-body">
+          {% if chart_labels %}
+            <canvas id="areaChart" height="200"></canvas>
+          {% else %}
+            <p class="text-muted text-center py-4">No time logged today</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Task Status Bar Chart -->
+    <div class="col-lg-6 col-md-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Task Status</h5>
+        </div>
+        <div class="card-body">
+          {% if status_labels %}
+            <canvas id="statusChart" height="200"></canvas>
+          {% else %}
+            <p class="text-muted text-center py-4">No tasks logged</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions & Recent Activity -->
+  <div class="row mb-4">
+    <!-- Quick Actions -->
+    <div class="col-lg-6 col-md-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Quick Actions</h5>
+        </div>
+        <div class="card-body">
+          <div class="list-group list-group-flush">
+            <a href="{{ url_for('area_logger.index') }}" class="list-group-item list-group-item-action">
+              <div class="d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-clock"></i> Area Logger</span>
+                <i class="fas fa-chevron-right text-muted"></i>
+              </div>
+            </a>
+            <a href="{{ url_for('timecard.index') }}" class="list-group-item list-group-item-action">
+              <div class="d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-chart-pie"></i> Timecard</span>
+                <i class="fas fa-chevron-right text-muted"></i>
+              </div>
+            </a>
+            <a href="{{ url_for('ts_log.index') }}" class="list-group-item list-group-item-action">
+              <div class="d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-list"></i> T/S Log</span>
+                <i class="fas fa-chevron-right text-muted"></i>
+              </div>
+            </a>
+            <a href="{{ url_for('management.areas_list') }}" class="list-group-item list-group-item-action">
+              <div class="d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-sliders-h"></i> Management</span>
+                <i class="fas fa-chevron-right text-muted"></i>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Area Breakdown Table -->
+    <div class="col-lg-6 col-md-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Today's Breakdown</h5>
+        </div>
+        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+          {% if area_breakdown %}
+            <table class="table table-sm mb-0">
+              <thead class="thead-light">
+                <tr>
+                  <th>Area</th>
+                  <th class="text-right">Hours</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for (area_name, dept, charge), hours in area_breakdown.items() %}
+                  <tr>
+                    <td>
+                      <small>
+                        <strong>{{ area_name }}</strong><br>
+                        <span class="text-muted">{{ dept }}</span>
+                      </small>
+                    </td>
+                    <td class="text-right"><strong>{{ "%.2f"|format(hours) }}h</strong></td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="text-muted text-center py-2">No time logged today</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="row">
+    {% if recent_logs %}
+    <div class="col-lg-6 col-md-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Recent Time Logs</h5>
+        </div>
+        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+          <table class="table table-sm mb-0">
+            <tbody>
+              {% for log in recent_logs|reverse %}
+              <tr>
+                <td>
+                  <small>
+                    <strong>{{ log.area_name }}</strong><br>
+                    {% if log.charge_code %}<span class="badge badge-info">{{ log.charge_code }}</span>{% endif %}
+                    <span class="text-muted">{{ log.duration_hours|round(2) }}h</span>
+                  </small>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if recent_tasks %}
+    <div class="col-lg-6 col-md-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Recent T/S Logs</h5>
+        </div>
+        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+          <table class="table table-sm mb-0">
+            <tbody>
+              {% for task in recent_tasks|reverse %}
+              <tr>
+                <td>
+                  <small>
+                    <strong>{{ task.task_name }}</strong><br>
+                    <span class="badge badge-info">{{ task.status or 'Pending' }}</span>
+                    <span class="text-muted">{{ task.duration_hours|round(2) }}h</span>
+                  </small>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
   </div>
 </div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<script>
+  // Time by Area Chart
+  {% if chart_labels %}
+  const areaCtx = document.getElementById('areaChart').getContext('2d');
+  new Chart(areaCtx, {
+    type: 'doughnut',
+    data: {
+      labels: {{ chart_labels | safe }},
+      datasets: [{
+        data: {{ chart_data | safe }},
+        backgroundColor: [
+          '#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8',
+          '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6c757d'
+        ],
+        borderColor: '#fff',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            padding: 15,
+            usePointStyle: true,
+            font: {
+              size: 11
+            }
+          }
+        }
+      }
+    }
+  });
+  {% endif %}
+
+  // Task Status Chart
+  {% if status_labels %}
+  const statusCtx = document.getElementById('statusChart').getContext('2d');
+  new Chart(statusCtx, {
+    type: 'bar',
+    data: {
+      labels: {{ status_labels | safe }},
+      datasets: [{
+        label: 'Tasks',
+        data: {{ status_data | safe }},
+        backgroundColor: ['#28a745', '#ffc107', '#dc3545', '#6f42c1'],
+        borderColor: '#fff',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1
+          }
+        }
+      }
+    }
+  });
+  {% endif %}
+
+  // Auto-refresh dashboard every 5 minutes
+  setInterval(function() {
+    fetch('/dashboard/api/summary?days=1')
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          // Update dashboard metrics
+          location.reload();
+        }
+      })
+      .catch(error => console.log('Dashboard update failed:', error));
+  }, 300000); // 5 minutes
+</script>
+
+<style>
+  .card {
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  }
+
+  .list-group-item-action {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .list-group-item-action:hover {
+    background-color: #f8f9fa;
+  }
+
+  /* Mobile responsive adjustments */
+  @media (max-width: 768px) {
+    .btn-group {
+      width: 100%;
+      margin-top: 10px;
+    }
+    
+    .btn-group .btn {
+      flex: 1;
+    }
+
+    .card-body {
+      padding: 0.75rem;
+    }
+
+    .table {
+      font-size: 0.85rem;
+    }
+  }
+</style>
 {% endblock %}

@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid mt-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="mb-3">Analytics Dashboard</h1>
+      
+      <!-- Date Range Filter -->
+      <form method="GET" class="form-inline mb-3" id="dateForm">
+        <div class="form-group mr-2">
+          <label for="fromDate" class="mr-2">From:</label>
+          <input type="date" id="fromDate" name="from" class="form-control form-control-sm" value="{{ start_date }}">
+        </div>
+        <div class="form-group mr-2">
+          <label for="toDate" class="mr-2">To:</label>
+          <input type="date" id="toDate" name="to" class="form-control form-control-sm" value="{{ end_date }}">
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+        <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary btn-sm ml-2">Back to Dashboard</a>
+      </form>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row mb-4">
+    <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="card-title text-muted mb-2">Total Hours</h6>
+          <h3 class="mb-2">{{ total_hours }}h</h3>
+          <small class="text-muted">Period total</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="card-title text-muted mb-2">Sessions</h6>
+          <h3 class="mb-2">{{ time_log_count }}</h3>
+          <small class="text-muted">Time entries logged</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="card-title text-muted mb-2">Tasks</h6>
+          <h3 class="mb-2">{{ task_count }}</h3>
+          <small class="text-muted">T/S Log entries</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="card-title text-muted mb-2">Avg Session</h6>
+          <h3 class="mb-2">{{ (total_hours / time_log_count)|round(1) if time_log_count > 0 else 0 }}h</h3>
+          <small class="text-muted">Average per session</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="row mb-4">
+    <!-- Daily Trend Chart -->
+    <div class="col-lg-6 col-md-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Daily Hours Trend</h5>
+        </div>
+        <div class="card-body">
+          {% if daily_labels %}
+            <canvas id="dailyChart" height="250"></canvas>
+          {% else %}
+            <p class="text-muted text-center py-4">No data for selected period</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Area Breakdown Chart -->
+    <div class="col-lg-6 col-md-12 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Time by Area</h5>
+        </div>
+        <div class="card-body">
+          {% if area_labels %}
+            <canvas id="areaChart" height="250"></canvas>
+          {% else %}
+            <p class="text-muted text-center py-4">No data for selected period</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Priority Chart -->
+  <div class="row mb-4">
+    <div class="col-lg-6 col-md-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Tasks by Priority</h5>
+        </div>
+        <div class="card-body">
+          {% if task_by_priority %}
+            <canvas id="priorityChart" height="200"></canvas>
+          {% else %}
+            <p class="text-muted text-center py-4">No tasks for selected period</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Area Breakdown Table -->
+    <div class="col-lg-6 col-md-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Area Breakdown</h5>
+        </div>
+        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+          {% if area_breakdown %}
+            <table class="table table-sm mb-0">
+              <thead class="thead-light">
+                <tr>
+                  <th>Area</th>
+                  <th class="text-right">Hours</th>
+                  <th class="text-right">%</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% set total = total_hours %}
+                {% for (area_name, dept, charge), hours in area_breakdown.items() %}
+                  <tr>
+                    <td>
+                      <small>
+                        <strong>{{ area_name }}</strong><br>
+                        <span class="text-muted">{{ charge or 'N/A' }}</span>
+                      </small>
+                    </td>
+                    <td class="text-right"><strong>{{ "%.2f"|format(hours) }}h</strong></td>
+                    <td class="text-right"><span class="badge badge-info">{{ ((hours / total) * 100)|round(1) }}%</span></td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="text-muted text-center py-2">No data for selected period</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if error %}
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>Error:</strong> {{ error }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<script>
+  // Daily Trend Chart
+  {% if daily_labels %}
+  const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+  new Chart(dailyCtx, {
+    type: 'line',
+    data: {
+      labels: {{ daily_labels | safe }},
+      datasets: [{
+        label: 'Hours',
+        data: {{ daily_hours | safe }},
+        borderColor: '#007bff',
+        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#007bff',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return value + 'h';
+            }
+          }
+        }
+      }
+    }
+  });
+  {% endif %}
+
+  // Area Breakdown Chart
+  {% if area_labels %}
+  const areaCtx = document.getElementById('areaChart').getContext('2d');
+  new Chart(areaCtx, {
+    type: 'bar',
+    data: {
+      labels: {{ area_labels | safe }},
+      datasets: [{
+        label: 'Hours',
+        data: {{ area_hours | safe }},
+        backgroundColor: [
+          '#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8',
+          '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6c757d'
+        ],
+        borderColor: '#fff',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      indexAxis: 'y',
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return value + 'h';
+            }
+          }
+        }
+      }
+    }
+  });
+  {% endif %}
+
+  // Task Priority Chart
+  {% if task_by_priority %}
+  const priorityData = {{ task_by_priority | safe }};
+  const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+  new Chart(priorityCtx, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(priorityData),
+      datasets: [{
+        data: Object.values(priorityData),
+        backgroundColor: [
+          '#dc3545', '#ffc107', '#28a745', '#6f42c1'
+        ],
+        borderColor: '#fff',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            padding: 15,
+            usePointStyle: true,
+            font: {
+              size: 11
+            }
+          }
+        }
+      }
+    }
+  });
+  {% endif %}
+</script>
+
+<style>
+  .card {
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  }
+
+  /* Mobile responsive adjustments */
+  @media (max-width: 768px) {
+    .form-inline {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .form-group {
+      width: 100%;
+      margin-right: 0 !important;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .form-group input {
+      width: 100%;
+    }
+
+    .table {
+      font-size: 0.85rem;
+    }
+
+    .card-body {
+      padding: 0.75rem;
+    }
+  }
+</style>
+{% endblock %}

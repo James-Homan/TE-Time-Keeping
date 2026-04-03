@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <h1>Edit T/S Log Item</h1>
+</div>
+
+<form method="post" class="large-form">
+  <label>Task name</label>
+  <input type="text" name="task_name" required value="{{ log.task_name }}">
+
+  <label>Station / Fixture ID</label>
+  <input type="text" name="station_fixture_id" value="{{ log.station_fixture_id or '' }}" placeholder="Station or fixture identifier">
+
+  <label>Problem / Issues</label>
+  <textarea name="problem_issues" rows="3" placeholder="Describe issue...">{{ log.problem_issues or '' }}</textarea>
+
+  <label>Solution</label>
+  <textarea name="solution" rows="3" placeholder="Document solution steps...">{{ log.solution or '' }}</textarea>
+
+  <label>Category</label>
+  <input type="text" name="category" value="{{ log.category or '' }}" placeholder="eg. Troubleshooting">
+
+  <label>Description</label>
+  <textarea name="description" rows="3" placeholder="Add additional notes...">{{ log.description or '' }}</textarea>
+
+  <div class="button-row">
+    <button type="submit" class="btn-primary">Save changes</button>
+    <a class="btn-secondary" href="{{ url_for('ts_log.index') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

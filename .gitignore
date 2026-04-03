@@ -2,30 +2,61 @@
 .venv/
 venv/
 env/
+ENV/
 
-# Python cache
+# Python cache and compiled files
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
 
-# IDE files
+# IDE and editor files
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# OS files
+*~
 .DS_Store
 Thumbs.db
+*.sublime-project
+*.sublime-workspace
 
-# Database files (if not needed in repo)
-instance/timecard.db
+# Database files
+instance/
+*.db
+*.sqlite
+*.sqlite3
 
 # Logs
-*.log
 logs/
+*.log
+
+# Environment and configuration
+.env
+.env.local
+.env.*.local
+
+# OS specific
+.DS_Store
+Thumbs.db
+*.lnk
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Temporary files
 *.tmp
 *.temp
+*.bak
+*~
+
+# IDE metadata
+.vscode/settings.json
+.vscode/launch.json

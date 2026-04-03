@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1>Edit T/S Log</h1>
+        <a href="{{ url_for('ts_log.index') }}" class="btn btn-outline-secondary">Back to T/S Log</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Form -->
+  <div class="row">
+    <div class="col-lg-10 col-md-12 mx-auto">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Edit T/S Log Entry</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST" class="form-horizontal">
+            <!-- Row 1: Basic Information -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="start_time"><strong>Start Time *</strong></label>
+                  <input type="datetime-local" id="start_time" name="start_time" class="form-control" 
+                    value="{{ log.start_time_local }}" required>
+                  <small class="form-text text-muted">When you started this task</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="end_time"><strong>End Time *</strong></label>
+                  <input type="datetime-local" id="end_time" name="end_time" class="form-control" 
+                    value="{{ log.end_time_local }}" required>
+                  <small class="form-text text-muted">When you completed this task</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 2: Task Details -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="task_name"><strong>Task Name *</strong></label>
+                  <input type="text" id="task_name" name="task_name" class="form-control" 
+                    value="{{ log.task_name }}" placeholder="e.g., Fix equipment issue, Documentation review" required>
+                  <small class="form-text text-muted">Name or description of the task</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="priority"><strong>Priority *</strong></label>
+                  <select id="priority" name="priority" class="form-control" required>
+                    <option value="">-- Select priority --</option>
+                    <option value="Low" {% if log.priority == 'Low' %}selected{% endif %}>Low</option>
+                    <option value="Medium" {% if log.priority == 'Medium' %}selected{% endif %}>Medium</option>
+                    <option value="High" {% if log.priority == 'High' %}selected{% endif %}>High</option>
+                    <option value="Critical" {% if log.priority == 'Critical' %}selected{% endif %}>Critical</option>
+                  </select>
+                  <small class="form-text text-muted">Urgency level of the task</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 3: Location and Category -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="station"><strong>Station/Location *</strong></label>
+                  <input type="text" id="station" name="station" class="form-control" 
+                    value="{{ log.station }}" placeholder="e.g., Station 12, Office A" required>
+                  <small class="form-text text-muted">Where the task was performed</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="category"><strong>Category</strong></label>
+                  <input type="text" id="category" name="category" class="form-control" 
+                    value="{{ log.category or '' }}" placeholder="e.g., Maintenance, Support, Installation">
+                  <small class="form-text text-muted">Task category for classification</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 4: Status -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="status"><strong>Status *</strong></label>
+                  <select id="status" name="status" class="form-control" required>
+                    <option value="">-- Select status --</option>
+                    <option value="Completed" {% if log.status == 'Completed' %}selected{% endif %}>Completed</option>
+                    <option value="In Progress" {% if log.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Pending" {% if log.status == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Cancelled" {% if log.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                  </select>
+                  <small class="form-text text-muted">Current status of the task</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Problem Description -->
+            <div class="form-group">
+              <label for="problem"><strong>Problem Description *</strong></label>
+              <textarea id="problem" name="problem" class="form-control" rows="3" 
+                placeholder="Describe the problem or issue that needed to be addressed" required>{{ log.problem }}</textarea>
+              <small class="form-text text-muted">Detailed description of the problem encountered</small>
+            </div>
+
+            <!-- Solution Description -->
+            <div class="form-group">
+              <label for="solution"><strong>Solution/Resolution *</strong></label>
+              <textarea id="solution" name="solution" class="form-control" rows="3" 
+                placeholder="Describe how the problem was resolved or what was accomplished" required>{{ log.solution }}</textarea>
+              <small class="form-text text-muted">Detailed description of the solution or resolution</small>
+            </div>
+
+            <!-- Additional Notes -->
+            <div class="form-group">
+              <label for="description"><strong>Description/Additional Notes</strong></label>
+              <textarea id="description" name="description" class="form-control" rows="2" 
+                placeholder="Any additional information or observations">{{ log.description or '' }}</textarea>
+              <small class="form-text text-muted">Optional additional information</small>
+            </div>
+
+            <!-- Duration Display -->
+            <div class="form-group">
+              <label><strong>Duration</strong></label>
+              <div class="alert alert-info">
+                <strong>Current Duration:</strong>
+                {% if log.duration_hours is not none %}
+                  {{ log.duration_hours }} hours
+                {% elif log.start_time_local and log.end_time_local %}
+                  {% set start = log.start_time_local %}
+                  {% set end = log.end_time_local %}
+                  {{ "(set times in form)" }}
+                {% else %}
+                  Active log (no end time set)
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save"></i> Update T/S Log
+              </button>
+              <a href="{{ url_for('ts_log.index') }}" class="btn btn-outline-secondary ml-2">
+                <i class="fas fa-times"></i> Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show position-fixed" 
+          style="top: 20px; right: 20px; z-index: 1050; width: auto; max-width: 300px;" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+</div>
+
+<style>
+  /* Mobile responsive adjustments */
+  @media (max-width: 768px) {
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .btn {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-outline-secondary {
+      margin-left: 0 !important;
+    }
+
+    .row {
+      margin-bottom: 1rem;
+    }
+  }
+
+  /* Form styling */
+  .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+  textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+  }
+</style>
+{% endblock %}

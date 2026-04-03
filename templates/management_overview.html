@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Management Overview{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Management</h1>
+    <p>Manage Charge Codes and Areas in one page.</p>
+</div>
+
+<div class="flex-layout">
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Charge Codes</h2>
+            <a href="{{ url_for('management.create_charge_code_view') }}" class="btn btn-primary">Add Charge Code</a>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr><th>Code</th><th>Description</th><th>Status</th><th>Created</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for cc in charge_codes %}
+                <tr>
+                    <td>{{ cc.code }}</td>
+                    <td>{{ cc.description or '-' }}</td>
+                    <td>{{ 'Active' if cc.is_active else 'Inactive' }}</td>
+                    <td>{{ cc.created_at.split(' ')[0] if cc.created_at else '-' }}</td>
+                    <td><a href="{{ url_for('management.edit_charge_code_view', charge_code_id=cc.id) }}" class="btn btn-sm btn-secondary">Edit</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Areas</h2>
+            <a href="{{ url_for('management.create_area_view') }}" class="btn btn-primary">Add Area</a>
+        </div>
+        <div class="areas-grid">
+            {% for area in areas %}
+            <div class="area-card">
+                <h3>{{ area.name }}</h3>
+                <p>{{ area.description or 'No description' }}</p>
+                <p><strong>Charge Code:</strong> {{ area.charge_code_code or 'None' }}</p>
+                <p><small>Created: {{ area.created_at.split(' ')[0] if area.created_at else '-' }}</small></p>
+                <a class="btn btn-sm btn-secondary" href="{{ url_for('management.edit_area_view', area_id=area.id) }}">Edit</a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

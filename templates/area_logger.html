@@ -50,6 +50,8 @@
       <input type="date" name="to" value="{{ end_date }}">
       <button type="submit" class="btn-secondary">Update</button>
       <a class="btn-outline" href="{{ url_for('area_logger.export_csv', from=start_date, to=end_date) }}">Export CSV</a>
+      <a class="btn-outline" href="{{ url_for('area_logger.export_pdf', from=start_date, to=end_date) }}">Export PDF</a>
+      <a class="btn-outline" href="{{ url_for('area_logger.export_excel', from=start_date, to=end_date) }}">Export Excel</a>
     </form>
   </div>
 
@@ -62,6 +64,7 @@
         <th>Start</th>
         <th>End</th>
         <th>Duration (hours)</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -73,11 +76,20 @@
           <td>{{ log.start_time }}</td>
           <td>{{ log.end_time or '-' }}</td>
           <td>{{ '%.3f'|format(log.duration_hours) }}</td>
+          <td>
+            {% if log.end_time %}
+              <a href="{{ url_for('area_logger.edit_log', log_id=log.id) }}" class="btn-sm btn-outline-primary" title="Edit this log">
+                <i class="fas fa-edit"></i> Edit
+              </a>
+            {% else %}
+              <span class="text-muted">Active</span>
+            {% endif %}
+          </td>
         </tr>
       {% endfor %}
       {% if not logs %}
         <tr>
-          <td colspan="6" class="empty-row">No logs in this range.</td>
+          <td colspan="7" class="empty-row">No logs in this range.</td>
         </tr>
       {% endif %}
     </tbody>

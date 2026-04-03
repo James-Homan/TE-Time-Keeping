@@ -19,7 +19,7 @@
 
     <ul class="nav-links">
       {% if session.get('user_id') %}
-        <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
         <li><a href="{{ url_for('area_logger.index') }}">Area Logger</a></li>
         <li><a href="{{ url_for('timecard.index') }}">Timecard</a></li>
         <li><a href="{{ url_for('ts_log.index') }}">T/S Log</a></li>
